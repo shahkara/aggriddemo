@@ -6,11 +6,13 @@ import { AppComponent } from './app.component';
 import { AgGridModule } from 'ag-grid-angular'
 import { HttpClientModule } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MatPaginatorModule } from '@angular/material/paginator'
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { RmsTableComponent } from './rms-table/rms-table.component'
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    RmsTableComponent
   ],
   imports: [
     BrowserModule,

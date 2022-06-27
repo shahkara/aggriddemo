@@ -1,3 +1,4 @@
+<p>rms-table works!</p>
 <!-- Button to clear selection -->
 <button (click)="clearSelection()">Clear Selection</button>
 <button (click)="changePageSize()">Records per page to 100</button>
@@ -19,7 +20,7 @@
   (onRowClicked)="onRowClicked($event)"
   (sortChanged)="sortChanged($event)"
   [pagination]="pagination"
-  [paginationPageSize]="pageSize"
+  [paginationPageSize] = "pageSize"
   [suppressPaginationPanel]="true"
   [suppressScrollOnNewData]="true"
 ></ag-grid-angular>
@@ -41,10 +42,3 @@
 
 <!-- [pagination] = "pagination"
    [paginationPageSize]="paginationPageSize" -->
-
-<app-rms-table
-  [columnDefs]="columnDefs"
-  [rowData]="rowData"
-  [totalRecords]="totalRecords"
-  (updateGridData)="fetchUpdatedData($event)"
-></app-rms-table>

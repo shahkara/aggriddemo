@@ -38,7 +38,7 @@ export class AppComponent {
   public rowData!: any[];
 
   public pagination = true;
- // public paginationPageSize = 50;
+  // public paginationPageSize = 50;
 
   // paginator
   public totalRecords = 100;
@@ -46,7 +46,7 @@ export class AppComponent {
   public pageIndex = 0;
 
   // filter
-  public isFilterApplied = false
+  public isFilterApplied = false;
 
   gridOptions = {
     // PROPERTIES
@@ -128,13 +128,13 @@ export class AppComponent {
     );
 
     // return
-   // below code logic is not required if filtering is required pagewise only
+    // below code logic is not required if filtering is required pagewise only
     const filters = this.gridApi?.getFilterModel() || {};
-    if(Object.keys(filters).length === 0){
-      this.clearFilters()
-      return
+    if (Object.keys(filters).length === 0) {
+      // this.clearFilters()
+      return;
     }
-   // console.log('filtermodel:::', this.gridApi.getFilterModel()?.id.filter);
+    // console.log('filtermodel:::', this.gridApi.getFilterModel()?.id.filter);
     let filteredRecords;
     this.http.get<any[]>('http://localhost:3000/photos').subscribe((data) => {
       let matched = false;
@@ -152,9 +152,9 @@ export class AppComponent {
       console.log('filteredRecords:::', filteredRecords);
       this.paginator.firstPage();
       this.rowData = filteredRecords;
-      
+
       this.totalRecords = filteredRecords?.length || 0;
-     // this.gridApi.redrawRows();
+      // this.gridApi.redrawRows();
     });
 
     // get new filtered from api
@@ -212,5 +212,39 @@ export class AppComponent {
     // pageIndex: 1
     // pageSize: 50
     // previousPageIndex: 0
+  }
+
+  sortChanged($event: any) {
+    const sortState = this.gridApi.getSortModel();
+    console.log('sortChanged', sortState);
+  }
+
+  fetchUpdatedData(params: any) {
+    const { filters } = params;
+    console.log('fetchUpdatedData::', params);
+    let filteredRecords;
+    this.http.get<any[]>('http://localhost:3000/photos').subscribe((data) => {
+      let matched = false;
+      if (filters) {
+        filteredRecords = (data as Array<any>).filter((row) => {
+          return Object.keys(filters)?.every((key) => {
+            const value = row[key] && String(row[key]).toLocaleLowerCase();
+            if (value.includes(filters[key].filter)) {
+              return true;
+            }
+            return false;
+          });
+        });
+      } else{
+        filteredRecords = data;
+      }
+
+      // this.rowData = (data as Array<any>).slice(0, 50)
+      console.log('filteredRecords:::', filteredRecords);
+      // params.callBack();
+      this.rowData = filteredRecords;
+      this.totalRecords = filteredRecords?.length || 0;
+      // this.gridApi.redrawRows();
+    });
   }
 }
