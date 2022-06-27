@@ -9,6 +9,7 @@ import { HttpClient } from '@angular/common/http';
 import { MatPaginator } from '@angular/material/paginator';
 import { AgGridAngular } from 'ag-grid-angular';
 import { CellClickedEvent, ColDef, GridReadyEvent } from 'ag-grid-community';
+import { keyframes } from '@angular/animations';
 
 @Component({
   selector: 'app-rms-table',
@@ -21,6 +22,8 @@ export class RmsTableComponent {
   @Input() public totalRecords!: number;
 
   @Output() updateGridData = new EventEmitter<any>();
+  @Output() cellClicked = new EventEmitter<any>();
+  @Output() rowClicked = new EventEmitter<any>();
 
   private gridApi: any;
   private columnApi: any;
@@ -61,6 +64,7 @@ export class RmsTableComponent {
   // Example of consuming Grid Event
   onCellClicked(e: CellClickedEvent): void {
     console.log('cellClicked', e);
+    this.cellClicked.emit(e)
   }
 
   // Example using Grid's API
@@ -82,14 +86,15 @@ export class RmsTableComponent {
 
   onFilterChanged($event: any): void {
     let filters = this.getFilterObject(this.gridApi?.getFilterModel());
-    if (!filters) return;
+   // if (!filters) return;
 
     this.moveToFirstPage();
-    this.fetchGridData($event, false, true)
+    this.fetchGridData($event, false, true);
   }
 
   onRowClicked($event: any): void {
     console.log('onRowClicked......', $event);
+    this.rowClicked.emit($event);
   }
 
   onColumnResized($event: any): void {
@@ -106,18 +111,23 @@ export class RmsTableComponent {
   }
 
   pageChanged($event: any) {
-    this.fetchGridData($event, true, false)
+    this.fetchGridData($event, true, false);
   }
 
   sortChanged($event: any) {
-    this.fetchGridData($event, false, false)
+    this.fetchGridData($event, false, false);
   }
 
-  getFilterObject(params = {}) {
-    if (Object.keys(params).length === 0) {
+  getFilterObject(params:any) {
+    let filters: {  colId: any; text: any }[] = [];
+    const filterKeys = Object.keys(params);
+    if (filterKeys.length === 0) {
       return null;
     }
-    return params;
+    filterKeys.forEach((key: any) => {
+     filters.push({ colId: key , text: params[key]});
+    });
+    return filters;
   }
 
   getSortModel(params = []) {
@@ -128,26 +138,31 @@ export class RmsTableComponent {
         sortModel.push({ colId, sort });
       }
     });
-    return sortModel || null;
+    return sortModel.length === 0 ?  null : sortModel ;
   }
 
-  fetchGridData(event: any, pageChangeEvent: boolean, isfilterChangeEvent: boolean) {
-    const filters = this.getFilterObject(this.gridApi?.getFilterModel());
+  fetchGridData(
+    event: any,
+    pageChangeEvent: boolean,
+    isfilterChangeEvent: boolean
+  ) {
+    const filters = this.getFilterObject(this.gridApi?.getFilterModel?.());
     const sortModel = this.getSortModel(this.columnApi?.getColumnState?.());
+    console.log('filterModel:', this.gridApi?.getFilterModel?.())
     let pageIndex = 0;
-    let pageSize = this.pageSize
-    if(isfilterChangeEvent) {
-      pageIndex = isfilterChangeEvent ? 1 : this.pageIndex +1
-    } else if(pageChangeEvent){
+    let pageSize = this.pageSize;
+    if (isfilterChangeEvent) {
+      pageIndex = isfilterChangeEvent ? 1 : this.pageIndex + 1;
+    } else if (pageChangeEvent) {
       const { pageSize: pgSize, pageIndex: index } = event;
-      pageIndex = index +1
-      pageSize = pgSize
+      pageIndex = index + 1;
+      pageSize = pgSize;
     }
     this.updateGridData.emit({
       filters,
-      pageIndex: isfilterChangeEvent ? 1 : this.pageIndex +1,
+      pageIndex: isfilterChangeEvent ? 1 : this.pageIndex + 1,
       pageSize,
-      sortModel
+      sortModel,
     });
   }
 }

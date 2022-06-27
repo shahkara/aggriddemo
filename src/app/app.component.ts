@@ -229,7 +229,7 @@ export class AppComponent {
         filteredRecords = (data as Array<any>).filter((row) => {
           return Object.keys(filters)?.every((key) => {
             const value = row[key] && String(row[key]).toLocaleLowerCase();
-            if (value.includes(filters[key].filter)) {
+            if (value?.includes(filters[key].filter)) {
               return true;
             }
             return false;
